@@ -23,7 +23,13 @@ const builtinExtensions = {
     ev3: () => require('../extensions/scratch3_ev3'),
     makeymakey: () => require('../extensions/scratch3_makeymakey'),
     boost: () => require('../extensions/scratch3_boost'),
-    gdxfor: () => require('../extensions/scratch3_gdx_for')
+    gdxfor: () => require('../extensions/scratch3_gdx_for'),
+    // 自作ブロック
+    statistics: () => require('../extensions/scratch3_elementarystatistics'),
+    classdata: () => require('../extensions/scratch3_handballLog'),
+    Graph: () => require('../extensions/scratch3_graph'),
+    wether: () => require('../extensions/scratch3_wetherdata'),
+    basic: () => require('../extensions/scratch3_basic')
 };
 
 /**
