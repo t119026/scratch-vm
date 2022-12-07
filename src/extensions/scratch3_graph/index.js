@@ -1120,8 +1120,9 @@ class Scratch3Graph {
         // 引数取得
         const list = Cast.toString(args.LIST);
         const arr = this._changeStringToNumberArray(list);
-        console.log(arr);
-        console.log(arr.length);
+        // 引数取得確認
+        // console.log(arr);
+        // console.log(arr.length);
         // ターゲット取得
         const target = util.target;
         const penState = this._getPenState(target);
@@ -1443,14 +1444,20 @@ class Scratch3Graph {
         const circleSize = 100;
  
         ratio_arr.fill(0);  // 割合の配列を0で初期化
+        var arr_length = 0;
         for(var i = 0; i < arr.length; i++) {
-            sum += arr[i];
+            if(arr[i] > 0) {
+                sum += arr[i];
+            }
+            else {
+                arr[i] = 0;
+            }
         }
  
         for(var i = 0; i < arr.length; i++) {
             ratio_arr[i] = arr[i] / sum;
         }
-       
+        
         // 円グラフを描画
         // 円の中心点から線を引く
         var rad = 0.0
@@ -1678,7 +1685,12 @@ class Scratch3Graph {
             // 総和を計算
             var sum = 0.0;
             for(var i = 0; i < arr.length; i++) {
-                sum += arr[i];
+                if(arr[i] > 0) {
+                    sum += arr[i];
+                }
+                else {
+                    arr[i] = 0.0;
+                }
             }
             // 割合を計算
             for(var i = 0; i < arr.length; i++) {
@@ -1693,44 +1705,46 @@ class Scratch3Graph {
             // 繰り返し
             const success = new Promise(resolve => {
                 for(var i = 0; i < ratio_arr.length; i++) {
-                    // 高さを算出
-                    const height = Math.abs(this._verticalY - this._originY) * ((h + ratio_arr[i]) / this._maxVertical);
-                    // 棒の対角線を定義
-                    var vartex1_x = start;
-                    var vartex1_y = this._originY + Math.abs(this._verticalY - this._originY) * (h / this._maxVertical);
-                    var vartex2_x = start + w;
-                    var vartex2_y = this._originY + height;
-                    // ターゲットの座標を初期化
-                    target.setXY(vartex1_x, vartex1_y);
-                    // 棒(塗りつぶされた四角形)を描画
-                    for(var y = 0; y < Math.abs(vartex1_y - vartex2_y); y += (Math.abs(vartex2_y - vartex1_y) / (vartex2_y - vartex1_y))) {
-                        // すでにペンが下がっているか確認
-                        if(!penState.penDown) {
-                            // ペンが下がっていない場合の処理
-                            penState.penDown = true;
-                            target.addListener(RenderedTarget.EVENT_TARGET_MOVED, this._onTargetMoved);
+                    if(ratio_arr[i] > 0) {
+                        // 高さを算出
+                        const height = Math.abs(this._verticalY - this._originY) * ((h + ratio_arr[i]) / this._maxVertical);
+                        // 棒の対角線を定義
+                        var vartex1_x = start;
+                        var vartex1_y = this._originY + Math.abs(this._verticalY - this._originY) * (h / this._maxVertical);
+                        var vartex2_x = start + w;
+                        var vartex2_y = this._originY + height;
+                        // ターゲットの座標を初期化
+                        target.setXY(vartex1_x, vartex1_y);
+                        // 棒(塗りつぶされた四角形)を描画
+                        for(var y = 0; y < Math.abs(vartex1_y - vartex2_y); y += (Math.abs(vartex2_y - vartex1_y) / (vartex2_y - vartex1_y))) {
+                            // すでにペンが下がっているか確認
+                            if(!penState.penDown) {
+                                // ペンが下がっていない場合の処理
+                                penState.penDown = true;
+                                target.addListener(RenderedTarget.EVENT_TARGET_MOVED, this._onTargetMoved);
+                            }
+                            const penSkinId = this._getPenLayerID();
+                            if(penSkinId >= 0) {
+                                this.runtime.renderer.penPoint(penSkinId, penState.penAttributes, target.x, target.y);
+                                this.runtime.requestRedraw();
+                            }
+            
+                            // x座標をvartex2_xにする
+                            target.setXY(vartex2_x, vartex1_y + y);
+                            // x座標をvartex1_xにする
+                            target.setXY(vartex1_x, vartex1_y + y);
+            
+                            // penUpを利用
+                            if(penState.penDown) {
+                                penState.penDown = false;
+                                target.removeListener(RenderedTarget.EVENT_TARGET_MOVED, this._onTargetMoved);
+                            }
                         }
-                        const penSkinId = this._getPenLayerID();
-                        if(penSkinId >= 0) {
-                            this.runtime.renderer.penPoint(penSkinId, penState.penAttributes, target.x, target.y);
-                            this.runtime.requestRedraw();
-                        }
-        
-                        // x座標をvartex2_xにする
-                        target.setXY(vartex2_x, vartex1_y + y);
-                        // x座標をvartex1_xにする
-                        target.setXY(vartex1_x, vartex1_y + y);
-        
-                        // penUpを利用
-                        if(penState.penDown) {
-                            penState.penDown = false;
-                            target.removeListener(RenderedTarget.EVENT_TARGET_MOVED, this._onTargetMoved);
-                        }
+                        // 変数更新
+                        h += ratio_arr[i];
+                        // ペンの色を更新
+                        this._setOrChangeColorParam(ColorParam.COLOR, 30, penState, true);
                     }
-                    // 変数更新
-                    h += ratio_arr[i];
-                    // ペンの色を更新
-                    this._setOrChangeColorParam(ColorParam.COLOR, 30, penState, true);
                 }
             });
             console.log(success);
