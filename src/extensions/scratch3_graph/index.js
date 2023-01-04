@@ -471,7 +471,7 @@ class Scratch3Graph {
                 {
                     opcode: 'createBar',
                     blockType: BlockType.COMMAND,
-                    text: '縦じくと横じくを描く',
+                    text: '縦じくと横じくをかく',
                     filter: [TargetType.SPRITE]
                 },
                 {
@@ -532,36 +532,6 @@ class Scratch3Graph {
                     opcode: 'plotBar',
                     blockType: BlockType.COMMAND,
                     text: "左から[NUM]個目のメモリの位置に大きさ[VALUE]の棒をかく",
-                    arguments: {
-                        NUM: {
-                            type: ArgumentType.NUMBER,
-                            defaultValue: 1
-                        },
-                        VALUE: {
-                            type: ArgumentType.NUMBER,
-                            defaultValue: 100
-                        }
-                    }
-                },
-                {
-                    opcode: 'plotLeftBar',
-                    blockType: BlockType.COMMAND,
-                    text: "左から[NUM]個目のメモリの左側に大きさ[VALUE]の棒をかく",
-                    arguments: {
-                        NUM: {
-                            type: ArgumentType.NUMBER,
-                            defaultValue: 1
-                        },
-                        VALUE: {
-                            type: ArgumentType.NUMBER,
-                            defaultValue: 100
-                        }
-                    }
-                },
-                {
-                    opcode: 'plotRightBar',
-                    blockType: BlockType.COMMAND,
-                    text: "左から[NUM]個目のメモリの右側に大きさ[VALUE]の棒をかく",
                     arguments: {
                         NUM: {
                             type: ArgumentType.NUMBER,
@@ -1239,122 +1209,6 @@ class Scratch3Graph {
                 }
             }
         } 
-    }
-
-    /**
-     * 左からn個目のメモリの位置の左側に大きさvalueの棒を書く
-     * @param {object} args 
-     * @param {object} util 
-     */
-    plotLeftBar(args, util) {
-        // 引数取得
-        const num = Cast.toNumber(args.NUM);
-        const value = Cast.toNumber(args.VALUE);
-        // ターゲット取得
-        const target = util.target;
-        const penState = this._getPenState(target);
-        // 引数が数値型かを確認
-        if(!isNaN(num) && !isNaN(value) && value > 0) {
-            // 棒の横の長さを決定
-            // 描画範囲の30%
-            // もし、this._plotWidth = 0なら、横軸全体の30%を指定
-            const w = (this._plotWidth === 0 ? Math.abs(this._horizontalX - this._originX) : this._plotWidth) * 0.3;
-            // 描画開始位置を算出
-            const start = (this._plotWidth === 0 ? (this._originX + this._horizontalX)/2.0 : (this._originX + this._plotWidth * (num - 0.5))) - w -1.0;
-            // 縦の長さを算出
-            const height = Math.abs(this._verticalY - this._originY) * (value / this._maxVertical);
-            
-            // 棒の対角線を定義
-            var vartex1_x = start;
-            var vartex1_y = this._originY;
-            var vartex2_x = start + w;
-            var vartex2_y = this._originY + height;
-            // ターゲットの座標を初期化
-            target.setXY(vartex1_x, vartex1_y);
-            // 棒(塗りつぶされた四角形)を描画
-            for(var y = 0; y < Math.abs(vartex1_y - vartex2_y); y += (Math.abs(vartex2_y - vartex1_y) / (vartex2_y - vartex1_y))) {
-                // すでにペンが下がっているか確認
-                if(!penState.penDown) {
-                    // ペンが下がっていない場合の処理
-                    penState.penDown = true;
-                    target.addListener(RenderedTarget.EVENT_TARGET_MOVED, this._onTargetMoved);
-                }
-                const penSkinId = this._getPenLayerID();
-                if(penSkinId >= 0) {
-                    this.runtime.renderer.penPoint(penSkinId, penState.penAttributes, target.x, target.y);
-                    this.runtime.requestRedraw();
-                }
-
-                // x座標をvartex2_xにする
-                target.setXY(vartex2_x, vartex1_y + y);
-                // x座標をvartex1_xにする
-                target.setXY(vartex1_x, vartex1_y + y);
-
-                // penUpを利用
-                if(penState.penDown) {
-                    penState.penDown = false;
-                    target.removeListener(RenderedTarget.EVENT_TARGET_MOVED, this._onTargetMoved);
-                }
-            }
-        }
-    }
-
-    /**
-     * 左からn個目のメモリの位置の右側に大きさvalueの棒を書く
-     * @param {object} args 
-     * @param {object} util 
-     */
-    plotRightBar(args, util) {
-        // 引数取得
-        const num = Cast.toNumber(args.NUM);
-        const value = Cast.toNumber(args.VALUE);
-        // ターゲット取得
-        const target = util.target;
-        const penState = this._getPenState(target);
-        // 引数が数値型かを確認
-        if(!isNaN(num) && !isNaN(value) && num > 0) {
-            // 棒の横の長さを決定
-            // 描画範囲の30%
-            // もし、this._plotWidth = 0なら、横軸全体の30%を指定
-            const w = (this._plotWidth === 0 ? Math.abs(this._horizontalX - this._originX) : this._plotWidth) * 0.3;
-            // 描画開始位置を算出
-            const start = (this._plotWidth === 0 ? (this._originX + this._horizontalX)/2.0 : (this._originX + this._plotWidth * (num - 0.5))) + 1.0;
-            // 縦の長さを算出
-            const height = Math.abs(this._verticalY - this._originY) * (value / this._maxVertical);
-            
-            // 棒の対角線を定義
-            var vartex1_x = start;
-            var vartex1_y = this._originY;
-            var vartex2_x = start + w;
-            var vartex2_y = this._originY + height;
-            // ターゲットの座標を初期化
-            target.setXY(vartex1_x, vartex1_y);
-            // 棒(塗りつぶされた四角形)を描画
-            for(var y = 0; y < Math.abs(vartex1_y - vartex2_y); y += (Math.abs(vartex2_y - vartex1_y) / (vartex2_y - vartex1_y))) {
-                // すでにペンが下がっているか確認
-                if(!penState.penDown) {
-                    // ペンが下がっていない場合の処理
-                    penState.penDown = true;
-                    target.addListener(RenderedTarget.EVENT_TARGET_MOVED, this._onTargetMoved);
-                }
-                const penSkinId = this._getPenLayerID();
-                if(penSkinId >= 0) {
-                    this.runtime.renderer.penPoint(penSkinId, penState.penAttributes, target.x, target.y);
-                    this.runtime.requestRedraw();
-                }
-
-                // x座標をvartex2_xにする
-                target.setXY(vartex2_x, vartex1_y + y);
-                // x座標をvartex1_xにする
-                target.setXY(vartex1_x, vartex1_y + y);
-
-                // penUpを利用
-                if(penState.penDown) {
-                    penState.penDown = false;
-                    target.removeListener(RenderedTarget.EVENT_TARGET_MOVED, this._onTargetMoved);
-                }
-            }
-        }
     }
  
     /**

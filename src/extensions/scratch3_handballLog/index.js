@@ -42,7 +42,7 @@ class Scratch3HandballLog {
             {
                 text: formatMessage({
                     id: 'classdata.ClassDataMenu.class1',
-                    default: '6年1組',
+                    default: '1組の記録',
                     description: '6-1の記録'
                 }),
                 value: classDataParam.CLASS1
@@ -50,7 +50,7 @@ class Scratch3HandballLog {
             {
                 text: formatMessage({
                     id: 'classdata.ClassDataMenu.class2',
-                    default: '6年2組',
+                    default: '2組の記録',
                     description: '6-2の記録'
                 }),
                 value: classDataParam.CLASS2
@@ -58,7 +58,7 @@ class Scratch3HandballLog {
             {
                 text: formatMessage({
                     id: 'classdata.ClassDataMenu.class3',
-                    default: '6年3組',
+                    default: '3組の記録',
                     description: '6-3の記録'
                 }),
                 value: classDataParam.CLASS3
@@ -74,7 +74,7 @@ class Scratch3HandballLog {
                 {
                     opcode: 'getValue',
                     blockType: BlockType.REPORTER,
-                    text: '[CLASS]の番号[VALUE]の記録',
+                    text: '[CLASS]の[VALUE]番目',
                     arguments: {
                         CLASS: {
                             type: ArgumentType.STRING,
@@ -90,7 +90,7 @@ class Scratch3HandballLog {
                 {
                     opcode: 'getLength',
                     blockType: BlockType.REPORTER,
-                    text: '[CLASS]の記録の長さ',
+                    text: '[CLASS]の長さ',
                     arguments: {
                         CLASS: {
                             type: ArgumentType.STRING,
@@ -109,23 +109,45 @@ class Scratch3HandballLog {
         };
     }
 
+    /**
+     * 引数の変数が数値型かを判断(格納されている値が数値型かを判断)
+     * @param {object} checkVariable 
+     */
+    _checkisNumber(checkVariable) {
+        // 数値型へ変換
+        const toNum = Number(checkVariable);
+        if(isNaN(toNum)) {
+            return false;
+        }
+        return true;
+    }
+
     getValue(args) {
         const c = Cast.toString(args.CLASS);
-        const iter = Cast.toNumber(args.VALUE);
+        const iter = this._checkisNumber(Cast.toNumber(args.VALUE)) ? Cast.toNumber(args.VALUE) : -1;
 
         if(c === classDataParam.CLASS1) {
             if(iter <= this._array1.length && iter > 0) {
                 return this._array1[iter - 1];
+            }
+            else {
+                return 0;
             }
         }
         else if(c === classDataParam.CLASS2) {
             if(iter <= this._array2.length && iter > 0) {
                 return this._array2[iter - 1];
             }
+            else {
+                return 0;
+            }
         }
         else if(c === classDataParam.CLASS3) {
             if(iter <= this._array3.length && iter > 0) {
                 return this._array3[iter - 1];
+            }
+            else {
+                return 0;
             }
         }
 
