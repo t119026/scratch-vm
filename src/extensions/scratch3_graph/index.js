@@ -175,6 +175,7 @@ class Scratch3Graph {
      * @returns {array}
      */
     _changeStringToNumberArray(arr) {
+        console.log(arr);
         // 文字列をスペース区切りで配列に格納(数値型に変換)
         const arr_split = arr.split(/\s/).map(Number);
         // 上記配列内がすべて数値型かを確認
@@ -1089,10 +1090,11 @@ class Scratch3Graph {
     createBarGraph(args, util) {
         // 引数取得
         const list = Cast.toString(args.LIST);
+        console.log(list);
         const arr = this._changeStringToNumberArray(list);
         // 引数取得確認
-        // console.log(arr);
-        // console.log(arr.length);
+        console.log(arr);
+        console.log(arr.length);
         // ターゲット取得
         const target = util.target;
         const penState = this._getPenState(target);
@@ -1112,47 +1114,45 @@ class Scratch3Graph {
             var vartex2_x = 0;
             var vartex2_y = 0;
             
-            const success = new Promise(resolve => {
-                for(var i = 0; i < arr.length; i++) {
-                    if(arr[i] > 0) {
-                        start = this._plotWidth === 0 ? (this._originX + this._horizontalX)/2.0 : (this._originX + this._plotWidth * (i + 0.5) - w / 2.0);
-                        height = Math.abs(this._verticalY - this._originY) * (arr[i] / this._maxVertical);
-                        console.log(start);
-                        // 棒の対角線を定義
-                        vartex1_x = start;
-                        vartex1_y = this._originY;
-                        vartex2_x = start + w;
-                        vartex2_y = this._originY + height;
-                        // ターゲットの座標を初期化
-                        target.setXY(vartex1_x, vartex1_y);
-                        // 棒(塗りつぶされた四角形)を描画
-                        for(var y = 0; y < Math.abs(vartex1_y - vartex2_y); y += (Math.abs(vartex2_y - vartex1_y) / (vartex2_y - vartex1_y))) {
-                            // すでにペンが下がっているか確認
-                            if(!penState.penDown) {
-                                // ペンが下がっていない場合の処理
-                                penState.penDown = true;
-                                target.addListener(RenderedTarget.EVENT_TARGET_MOVED, this._onTargetMoved);
-                            }
-                            const penSkinId = this._getPenLayerID();
-                            if(penSkinId >= 0) {
-                                this.runtime.renderer.penPoint(penSkinId, penState.penAttributes, target.x, target.y);
-                                this.runtime.requestRedraw();
-                            }
+            for(var i = 0; i < arr.length; i++) {
+                if(arr[i] > 0) {
+                    start = this._plotWidth === 0 ? (this._originX + this._horizontalX)/2.0 : (this._originX + this._plotWidth * (i + 0.5) - w / 2.0);
+                    height = Math.abs(this._verticalY - this._originY) * (arr[i] / this._maxVertical);
+                    console.log(start);
+                    // 棒の対角線を定義
+                    vartex1_x = start;
+                    vartex1_y = this._originY;
+                    vartex2_x = start + w;
+                    vartex2_y = this._originY + height;
+                    // ターゲットの座標を初期化
+                    target.setXY(vartex1_x, vartex1_y);
+                    // 棒(塗りつぶされた四角形)を描画
+                    for(var y = 0; y < Math.abs(vartex1_y - vartex2_y); y += (Math.abs(vartex2_y - vartex1_y) / (vartex2_y - vartex1_y))) {
+                        // すでにペンが下がっているか確認
+                        if(!penState.penDown) {
+                            // ペンが下がっていない場合の処理
+                            penState.penDown = true;
+                            target.addListener(RenderedTarget.EVENT_TARGET_MOVED, this._onTargetMoved);
+                        }
+                        const penSkinId = this._getPenLayerID();
+                        if(penSkinId >= 0) {
+                            this.runtime.renderer.penPoint(penSkinId, penState.penAttributes, target.x, target.y);
+                            this.runtime.requestRedraw();
+                        }
             
-                            // x座標をvartex2_xにする
-                            target.setXY(vartex2_x, vartex1_y + y);
-                            // x座標をvartex1_xにする
-                            target.setXY(vartex1_x, vartex1_y + y);
+                        // x座標をvartex2_xにする
+                        target.setXY(vartex2_x, vartex1_y + y);
+                        // x座標をvartex1_xにする
+                        target.setXY(vartex1_x, vartex1_y + y);
             
-                            // penUpを利用
-                            if(penState.penDown) {
-                                penState.penDown = false;
-                                target.removeListener(RenderedTarget.EVENT_TARGET_MOVED, this._onTargetMoved);
-                            }
+                        // penUpを利用
+                        if(penState.penDown) {
+                            penState.penDown = false;
+                            target.removeListener(RenderedTarget.EVENT_TARGET_MOVED, this._onTargetMoved);
                         }
                     }
                 }
-            });
+            }
         }
     }
  

@@ -1325,7 +1325,7 @@ class Scratch3WetherData {
     getInfo() {
         return {
             id: 'wether',
-            name: '月平均気温・降水量・日照量',
+            name: '各地の気象データ',
             blocks: [
                 {
                     opcode: 'getMonthLength',
@@ -1335,7 +1335,7 @@ class Scratch3WetherData {
                 {
                     opcode: 'getTempValue',
                     blockType: BlockType.REPORTER,
-                    text: '[DATA_PARAM][VALUE]月[AREA]の平均気温',
+                    text: '[DATA_PARAM][AREA]の平均気温の[VALUE]番目',
                     arguments: {
                         DATA_PARAM: {
                             type: ArgumentType.STRING,
@@ -1356,7 +1356,7 @@ class Scratch3WetherData {
                 {
                     opcode: 'getAllTempValue',
                     blockType: BlockType.REPORTER,
-                    text: '[DATA_PARAM][AREA]の平均気温のデータ',
+                    text: '[DATA_PARAM][AREA]の平均気温',
                     arguments: {
                         DATA_PARAM: {
                             type: ArgumentType.STRING,
@@ -1373,7 +1373,7 @@ class Scratch3WetherData {
                 {
                     opcode: 'getPrecValue',
                     blockType: BlockType.REPORTER,
-                    text: '[DATA_PARAM][VALUE]月[AREA]の降水量',
+                    text: '[DATA_PARAM][AREA]の降水量の[VALUE]番目',
                     arguments: {
                         DATA_PARAM: {
                             type: ArgumentType.STRING,
@@ -1394,7 +1394,7 @@ class Scratch3WetherData {
                 {
                     opcode: 'getAllPrecValue',
                     blockType: BlockType.REPORTER,
-                    text: '[DATA_PARAM][AREA]の降水量のデータ',
+                    text: '[DATA_PARAM][AREA]の降水量',
                     arguments: {
                         DATA_PARAM: {
                             type: ArgumentType.STRING,
@@ -1411,7 +1411,7 @@ class Scratch3WetherData {
                 {
                     opcode: 'getSunshine',
                     blockType: BlockType.REPORTER,
-                    text: '[DATA_PARAM][VALUE]月[AREA]の日照量',
+                    text: '[DATA_PARAM][AREA]の日照量の[VALUE]番目',
                     arguments: {
                         DATA_PARAM: {
                             type: ArgumentType.STRING,
@@ -1432,7 +1432,7 @@ class Scratch3WetherData {
                 {
                     opcode: 'getAllSunshine',
                     blockType: BlockType.REPORTER,
-                    text: '[DATA_PARAM][AREA]の日照量のデータ',
+                    text: '[DATA_PARAM][AREA]の日照量',
                     arguments: {
                         DATA_PARAM: {
                             type: ArgumentType.STRING,
@@ -1471,6 +1471,20 @@ class Scratch3WetherData {
         return this._getData(area, data_param, value, 'temperature');
     }
 
+    getAllTempValue(args) {
+        const area = Cast.toString(args.AREA);
+        const data_param = Cast.toString(args.DATA_PARAM);
+        let str = String(this._getData(area, data_param, 1, 'temperature')) + " ";
+        for(let i = 1; i < 12; i++) {
+            str += String(this._getData(area, data_param, i, 'temperature'));
+            if(i < 11) {
+                str += " ";
+            }
+        }
+        console.log(str);
+        return str;
+    }
+
     getPrecValue(args) {
         const area = Cast.toString(args.AREA);
         const value = Cast.toNumber(args.VALUE);
@@ -1478,11 +1492,39 @@ class Scratch3WetherData {
         return this._getData(area, data_param, value, 'precipitation');
     }
 
+    getAllPrecValue(args) {
+        const area = Cast.toString(args.AREA);
+        const data_param = Cast.toString(args.DATA_PARAM);
+        let str = String(this._getData(area, data_param, 1, 'precipitation')) + " ";
+        for(let i = 1; i < 12; i++) {
+            str += String(this._getData(area, data_param, i, 'precipitation'));
+            if(i < 11) {
+                str += " ";
+            }
+        }
+        console.log(str);
+        return str;
+    }
+
     getSunshine(args) {
         const area = Cast.toString(args.AREA);
         const value = Cast.toNumber(args.VALUE);
         const data_param = Cast.toString(args.DATA_PARAM);
         return this._getData(area, data_param, value, 'sunshine');
+    }
+
+    getAllSunshine(args) {
+        const area = Cast.toString(args.AREA);
+        const data_param = Cast.toString(args.DATA_PARAM);
+        let str = String(this._getData(area, data_param, 1, 'sunshine')) + " ";
+        for(let i = 1; i < 12; i++) {
+            str += String(this._getData(area, data_param, i, 'sunshine'));
+            if(i < 11) {
+                str += " ";
+            }
+        }
+        console.log(str);
+        return str;
     }
 }
 
